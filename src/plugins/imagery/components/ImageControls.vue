@@ -31,7 +31,7 @@
 
             <button class="c-button t-btn-zoom-in icon-plus"
                     title="Zoom in"
-                    @click="zoomIn"
+                    @click="incrementZoomFactor(1)"
             ></button>
         </div>
 
