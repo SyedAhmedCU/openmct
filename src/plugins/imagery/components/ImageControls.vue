@@ -23,27 +23,28 @@
 <template>
 <div class="c-image-controls">
     <imagery-view-menu-switcher :icon-class="'icon-brightness'"
-                                :title="'Filters menu'"
+                                :title="'filters-menu'"
     >
         <filter-settings @filterChanged="updateFilterValues" />
     </imagery-view-menu-switcher>
 
     <imagery-view-menu-switcher :icon-class="'icon-magnify'"
-                                :title="'Filters menu'"
+                                :title="'zoom-menu'"
     >
         <zoom-settings :pan-zoom-locked="panZoomLocked"
-                       :formatted-zoom-factor="formattedZoomFactor"
+                       :zoom-factor="zoomFactor"
                        @zoomOut="zoomOut"
                        @zoomIn="zoomIn"
                        @toggleZoomLock="toggleZoomLock"
                        @handleResetImage="handleResetImage"
         />
     </imagery-view-menu-switcher>
+
     <imagery-view-menu-switcher v-if="layers.length"
                                 :icon-class="'icon-layers'"
-                                :title="'Layers menu'"
+                                :title="'layers-menu'"
     >
-        <imagery-layers :layers="layers"
+        <layer-settings :layers="layers"
                         @toggleLayerVisibility="toggleLayerVisibility"
         />
     </imagery-view-menu-switcher>
@@ -54,7 +55,7 @@
 import _ from 'lodash';
 
 import FilterSettings from "./FilterSettings.vue";
-import ImageryLayers from "./ImageryLayers.vue";
+import LayerSettings from "./LayerSettings.vue";
 import ZoomSettings from "./ZoomSettings.vue";
 import ImageryViewMenuSwitcher from "./ImageryViewMenuSwitcher.vue";
 
@@ -70,7 +71,7 @@ const ZOOM_STEP = 1;
 export default {
     components: {
         FilterSettings,
-        ImageryLayers,
+        LayerSettings,
         ImageryViewMenuSwitcher,
         ZoomSettings
     },
@@ -86,7 +87,9 @@ export default {
         },
         imageUrl: {
             type: String,
-            required: true
+            default: () => {
+                return '';
+            }
         }
     },
     data() {
@@ -103,9 +106,6 @@ export default {
         };
     },
     computed: {
-        formattedZoomFactor() {
-            return Number.parseFloat(this.zoomFactor).toPrecision(2);
-        },
         cursorStates() {
             const isPannable = this.altPressed && this.zoomFactor > 1;
             const showCursorZoomIn = this.metaPressed && !this.shiftPressed;
@@ -254,12 +254,11 @@ export default {
             this.zoomImage(newScaleFactor, e.clientX, e.clientY);
         },
         toggleLayerVisibility(index) {
-            let isVisible = this.layers[index].visible === true;
-            this.layers[index].visible = !isVisible;
-            this.visibleLayers = this.layers.filter(layer => layer.visible);
+            this.$emit('toggleLayerVisibility', index);
         },
         updateFilterValues(filters) {
             this.filters = filters;
+            this.notifyFiltersChanged();
         }
     }
 };
