@@ -33,28 +33,13 @@
             ref="imageControls"
             :zoom-factor="zoomFactor"
             :image-url="imageUrl"
+            :layers="layers"
             @resetImage="resetImage"
             @panZoomUpdated="handlePanZoomUpdate"
             @filtersUpdated="setFilters"
             @cursorsUpdated="setCursorStates"
             @startPan="startPan"
         />
-
-        <div class="h-local-controls h-local-controls--horz h-local-controls--overlay-content c-local-controls--show-on-hover c-imagery__lc">
-            <imagery-view-menu-switcher :icon-class="'icon-brightness'"
-                                        :title="'Filters menu'"
-            >
-                <imagery-settings @filterChanged="updateFilterValues" />
-            </imagery-view-menu-switcher>
-            <imagery-view-menu-switcher v-if="layers.length"
-                                        :icon-class="'icon-layers'"
-                                        :title="'Layers menu'"
-            >
-                <imagery-layers :layers="layers"
-                                @toggleLayerVisibility="toggleLayerVisibility"
-                />
-            </imagery-view-menu-switcher>
-        </div>
         <div ref="imageBG"
              class="c-imagery__main-image__bg"
              :class="{
@@ -217,10 +202,6 @@ import eventHelpers from '../lib/eventHelpers';
 import _ from 'lodash';
 import moment from 'moment';
 
-import ImagerySettings from "./ImagerySettings.vue";
-import ImageryLayers from "./ImageryLayers.vue";
-import ImageryViewMenuSwitcher from "./ImageryViewMenuSwitcher.vue";
-
 import RelatedTelemetry from './RelatedTelemetry/RelatedTelemetry';
 import Compass from './Compass/Compass.vue';
 import ImageControls from './ImageControls.vue';
@@ -248,10 +229,7 @@ const ZOOM_SCALE_DEFAULT = 1;
 export default {
     components: {
         Compass,
-        ImageControls,
-        ImagerySettings,
-        ImageryLayers,
-        ImageryViewMenuSwitcher
+        ImageControls
     },
     mixins: [imageryData],
     inject: ['openmct', 'domainObject', 'objectPath', 'currentView'],
@@ -759,7 +737,6 @@ export default {
         focusElement() {
             this.$el.focus();
         },
-
         handleScroll() {
             const thumbsWrapper = this.$refs.thumbsWrapper;
             if (!thumbsWrapper || this.resizingWindow) {
@@ -1106,14 +1083,6 @@ export default {
         },
         setCursorStates(states) {
             this.cursorStates = states;
-        },
-        updateFilterValues(filters) {
-            this.filters = filters;
-        },
-        toggleLayerVisibility(index) {
-            let isVisible = this.layers[index].visible === true;
-            this.layers[index].visible = !isVisible;
-            this.visibleLayers = this.layers.filter(layer => layer.visible);
         }
     }
 };
